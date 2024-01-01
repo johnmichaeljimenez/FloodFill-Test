@@ -12,14 +12,19 @@ public class Program
 
         while (!Raylib.WindowShouldClose())
         {
-            if (Raylib.IsMouseButtonPressed(0))
-            {
-                var mx = Raylib.GetMouseX() / 32;
-                var my = Raylib.GetMouseY() / 32;
+            var mx = Raylib.GetMouseX() / 32;
+            var my = Raylib.GetMouseY() / 32;
 
-                if ((mx >= 0 && mx < Grid.GetLength(0)) && my >= 0 && my < Grid.GetLength(1))
+            if ((mx >= 0 && mx < Grid.GetLength(0)) && my >= 0 && my < Grid.GetLength(1))
+            {
+                if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
                 {
-                    FloodFill(mx, my, Color.WHITE, Grid[mx, my]);
+                    FloodFill(mx, my, new Color(Raylib.GetRandomValue(0, 255), Raylib.GetRandomValue(0, 255), Raylib.GetRandomValue(0, 255), 255), Grid[mx, my]);
+                }
+
+                if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT))
+                {
+                    Grid[mx, my] = new Color(Raylib.GetRandomValue(0, 255), Raylib.GetRandomValue(0, 255), Raylib.GetRandomValue(0, 255), 255);
                 }
             }
 
