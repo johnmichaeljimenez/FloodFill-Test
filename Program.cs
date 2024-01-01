@@ -15,6 +15,8 @@ public class Program
         Raylib.SetConfigFlags(ConfigFlags.FLAG_VSYNC_HINT);
         Raylib.InitWindow(1366, 768, "Flood Fill Test");
 
+        ClearArray(Color.DARKGRAY);
+
         while (!Raylib.WindowShouldClose())
         {
             var mx = Raylib.GetMouseX() / BlockSize;
@@ -29,7 +31,7 @@ public class Program
 
                 if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT))
                 {
-                    Grid[mx, my] = new Color(Raylib.GetRandomValue(0, 255), Raylib.GetRandomValue(0, 255), Raylib.GetRandomValue(0, 255), 255);
+                    ClearArray(Color.DARKGRAY);
                 }
             }
 
@@ -60,6 +62,10 @@ public class Program
         if (x < 0 || x >= GRID_WIDTH) return;
         if (y < 0 || y >= GRID_HEIGHT) return;
 
+        var d = GetManhattanDistance(originX, originY, x, y);
+        if (d > maxDistance)
+            return;
+
         var c = Grid[x, y];
         if (c.R != old.R || c.G != old.G || c.B != old.B)
             return;
@@ -74,5 +80,21 @@ public class Program
         FloodFill(x + 1, y, color, old, originX, originY, maxDistance);
         FloodFill(x, y - 1, color, old, originX, originY, maxDistance);
         FloodFill(x, y + 1, color, old, originX, originY, maxDistance);
+    }
+
+    static int GetManhattanDistance(int x1, int y1, int x2, int y2)
+    {
+        return Math.Abs(x2 - x1) + Math.Abs(y2 - y1);
+    }
+
+    static void ClearArray(Color color)
+    {
+        for (int x = 0; x < GRID_WIDTH; x++)
+        {
+            for (int y = 0; y < GRID_HEIGHT; y++)
+            {
+                Grid[x, y] = color;
+            }
+        }
     }
 }
