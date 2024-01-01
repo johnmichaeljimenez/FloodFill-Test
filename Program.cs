@@ -2,8 +2,13 @@
 
 public class Program
 {
-    static Color[,] Grid = new Color[8, 8];
-    static int size = 32;
+    const int GRID_WIDTH = 32;
+    const int GRID_HEIGHT = 32;
+    const int Size = 32;
+    const int RectSize = 512;
+    const int BlockSize = RectSize / Size;
+
+    static Color[,] Grid = new Color[GRID_WIDTH, GRID_HEIGHT];
 
     public static void Main(string[] args)
     {
@@ -12,14 +17,14 @@ public class Program
 
         while (!Raylib.WindowShouldClose())
         {
-            var mx = Raylib.GetMouseX() / 32;
-            var my = Raylib.GetMouseY() / 32;
+            var mx = Raylib.GetMouseX() / BlockSize;
+            var my = Raylib.GetMouseY() / BlockSize;
 
             if ((mx >= 0 && mx < Grid.GetLength(0)) && my >= 0 && my < Grid.GetLength(1))
             {
                 if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT))
                 {
-                    FloodFill(mx, my, new Color(Raylib.GetRandomValue(0, 255), Raylib.GetRandomValue(0, 255), Raylib.GetRandomValue(0, 255), 255), Grid[mx, my]);
+                    FloodFill(mx, my, new Color(Raylib.GetRandomValue(0, 255), Raylib.GetRandomValue(0, 255), Raylib.GetRandomValue(0, 255), 255), Grid[mx, my], mx, my, 10);
                 }
 
                 if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_RIGHT))
@@ -33,28 +38,27 @@ public class Program
 
             Raylib.BeginDrawing();
 
-            for (int y = 0; y < Grid.GetLength(1); y++)
+            for (int y = 0; y < GRID_HEIGHT; y++)
             {
-                for (int x = 0; x < Grid.GetLength(0); x++)
+                for (int x = 0; x < GRID_WIDTH; x++)
                 {
-                    Raylib.DrawRectangle(x * size, y * size, size, size, Grid[x, y]);
-                    Raylib.DrawRectangleLines(x * size, y * size, size, size, Color.WHITE);
+                    Raylib.DrawRectangle(x * BlockSize, y * BlockSize, BlockSize, BlockSize, Grid[x, y]);
+                    Raylib.DrawRectangleLines(x * BlockSize, y * BlockSize, BlockSize, BlockSize, Color.BLACK);
                 }
             }
 
 
             Raylib.DrawFPS(2, 2);
-
             Raylib.EndDrawing();
         }
 
         Raylib.CloseWindow();
     }
 
-    static void FloodFill(int x, int y, Color color, Color old)
+    static async void FloodFill(int x, int y, Color color, Color old, int originX, int originY, int maxDistance)
     {
-        if (x < 0 || x >= Grid.GetLength(0)) return;
-        if (y < 0 || y >= Grid.GetLength(1)) return;
+        if (x < 0 || x >= GRID_WIDTH) return;
+        if (y < 0 || y >= GRID_HEIGHT) return;
 
         var c = Grid[x, y];
         if (c.R != old.R || c.G != old.G || c.B != old.B)
@@ -64,10 +68,11 @@ public class Program
             return;
 
         Grid[x, y] = color;
+        await Task.Delay(1);
 
-        FloodFill(x - 1, y, color, old);
-        FloodFill(x + 1, y, color, old);
-        FloodFill(x, y - 1, color, old);
-        FloodFill(x, y + 1, color, old);
+        FloodFill(x - 1, y, color, old, originX, originY, maxDistance);
+        FloodFill(x + 1, y, color, old, originX, originY, maxDistance);
+        FloodFill(x, y - 1, color, old, originX, originY, maxDistance);
+        FloodFill(x, y + 1, color, old, originX, originY, maxDistance);
     }
 }
