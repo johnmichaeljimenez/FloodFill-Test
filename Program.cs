@@ -3,6 +3,7 @@
 public class Program
 {
     static Color[,] Grid = new Color[8, 8];
+    static int size = 32;
 
     public static void Main(string[] args)
     {
@@ -11,17 +12,27 @@ public class Program
 
         while (!Raylib.WindowShouldClose())
         {
+            if (Raylib.IsMouseButtonPressed(0))
+            {
+                var mx = Raylib.GetMouseX() / 32;
+                var my = Raylib.GetMouseY() / 32;
+
+                if ((mx >= 0 && mx < Grid.GetLength(0)) && my >= 0 && my < Grid.GetLength(1))
+                {
+                    FloodFill(mx, my, Color.WHITE, Grid[mx, my]);
+                }
+            }
+
+
             Raylib.ClearBackground(Color.BLACK);
 
             Raylib.BeginDrawing();
 
-            for (int y = 0; y < 8; y++)
+            for (int y = 0; y < Grid.GetLength(1); y++)
             {
-                for (int x = 0; x < 8; x++)
+                for (int x = 0; x < Grid.GetLength(0); x++)
                 {
-                    int size = 32;
-
-                    Raylib.DrawRectangle(x*size, y* size, size, size, Color.RED);
+                    Raylib.DrawRectangle(x * size, y * size, size, size, Grid[x, y]);
                     Raylib.DrawRectangleLines(x * size, y * size, size, size, Color.WHITE);
                 }
             }
@@ -35,8 +46,23 @@ public class Program
         Raylib.CloseWindow();
     }
 
-    static void FloodFill(int x, int y)
+    static void FloodFill(int x, int y, Color color, Color old)
     {
+        if (x < 0 || x >= Grid.GetLength(0)) return;
+        if (y < 0 || y >= Grid.GetLength(1)) return;
 
+        var c = Grid[x, y];
+        if (c.R != old.R || c.G != old.G || c.B != old.B)
+            return;
+
+        if (c.R == color.R && c.G == color.G && c.B == color.B)
+            return;
+
+        Grid[x, y] = color;
+
+        FloodFill(x - 1, y, color, old);
+        FloodFill(x + 1, y, color, old);
+        FloodFill(x, y - 1, color, old);
+        FloodFill(x, y + 1, color, old);
     }
 }
